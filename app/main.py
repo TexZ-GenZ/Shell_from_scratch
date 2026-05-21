@@ -2,13 +2,18 @@ import sys
 
 
 def main():
-    while True :
+    while True:
         sys.stdout.write("$ ")
         command = input()
 
-        if command == "exit" :
-            break 
-        sys.stdout.write(f"{command}: command not found\n")
+        if command == "exit":
+            break
+
+        elif command.startswith("echo "):
+            print(command[5:])
+
+        else:
+            print(f"{command}: command not found")
 
 
 if __name__ == "__main__":
