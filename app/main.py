@@ -36,7 +36,7 @@ def main():
 
         elif command[0] == "type":
             arg = " ".join(command[1:])
-            if arg in ["echo", "exit", "type", "pwd"]:
+            if arg in ["echo", "exit", "type", "pwd", "cd"]:
                 print(f"{arg} is a shell builtin")
             else:
                 file_path = is_executable_in_path(arg)
