@@ -29,7 +29,9 @@ def main():
 
         elif command[0] == "cd":
             to_path = command[1]
-            if os.path.isdir(to_path):
+            if to_path == "~":
+                os.chdir(os.environ["HOME"])
+            elif os.path.isdir(to_path):
                 os.chdir(to_path)
             else:
                 print(f"cd: {to_path}: No such file or directory")
