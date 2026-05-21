@@ -1,42 +1,43 @@
 import sys
 import os
+import subprocess
 
+def is_executable_in_path(arg):
+    for dir in os.environ["PATH"].split(os.pathsep) :
+        file_path = os.path.join(dir,arg)
+        if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
+            return file_path         
+                        
 def main():
     while True:
         sys.stdout.write("$ ")
-        command = input()
+        command = input().split()
 
-        if command == "exit":
+        if not command :
+            continue
+        
+        if command[0] == "exit":
             break
 
-        elif command.startswith("echo "):
-            print(command[5:])
+        elif command[0] == "echo":
+            print(" ".join(command[1:]))
 
-        elif command.startswith("type "):
-            arg = command[5:]
-            found = False 
-
+        elif command[0] == "type":
+            arg = " ".join(command[1:])
             if arg in ["echo","exit","type"] :
                 print(f"{arg} is a shell builtin")
             else :
-                for dir in os.environ["PATH"].split(os.pathsep) :
-                    if os.path.isdir(dir):
-                        for file in os.listdir(dir):
-                            file_path = os.path.join(dir,file)
-                            
-                            if file == arg and os.access(file_path, os.X_OK):
-                                print(f"{arg} is {file_path}")
-                                found = True 
-                                break
-                        
-                        if found :
-                            break
-                if not found :           
+                file_path = is_executable_in_path(arg)
+                if file_path:
+                    print(f"{arg} is {file_path}")
+                else :
                     print(f"{arg}: not found")
 
-        else:
-            print(f"{command}: command not found")
+        elif is_executable_in_path(command[0]):
+            subprocess.run(command)
 
+        else:
+            print(f"{command[0]}: command not found")
 
 if __name__ == "__main__":
     main()
