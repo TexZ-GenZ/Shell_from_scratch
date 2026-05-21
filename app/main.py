@@ -15,13 +15,15 @@ def main():
 
         if not command :
             continue
-        
+
         if command[0] == "exit":
             break
 
         elif command[0] == "echo":
             print(" ".join(command[1:]))
 
+        elif command[0] == "pwd" :
+            print(os.getcwd())
         elif command[0] == "type":
             arg = " ".join(command[1:])
             if arg in ["echo","exit","type"] :
