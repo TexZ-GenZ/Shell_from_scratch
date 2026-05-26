@@ -13,22 +13,43 @@ def is_executable_in_path(arg):
 def main():
     while True:
         sys.stdout.write("$ ")
-        command = input().split()
-
+        command = input()
         if not command:
             continue
+        
+        com = command.split()[0]
 
-        if command[0] == "exit":
+        if com == "exit":
             break
 
-        elif command[0] == "echo":
-            print(" ".join(command[1:]))
+        elif com == "echo":
+            out = ""
+            text = command[5:] 
 
-        elif command[0] == "pwd":
+            i = 0
+            while i < len(text):
+                if text[i] == "'":
+                    i += 1
+                    while i < len(text) and text[i] != "'":
+                        out += text[i]
+                        i += 1
+                else:
+                    if text[i] == " ":
+                        out += " "
+                        while i < len(text) and text[i] == " ":
+                            i += 1
+                        i -= 1
+                    else :
+                        out += text[i]
+                i += 1
+
+            print(out)
+
+        elif com == "pwd":
             print(os.getcwd())
 
-        elif command[0] == "cd":
-            to_path = command[1]
+        elif com == "cd":
+            to_path = command[3:]
             if to_path == "~":
                 os.chdir(os.environ["HOME"])
             elif os.path.isdir(to_path):
@@ -36,8 +57,8 @@ def main():
             else:
                 print(f"cd: {to_path}: No such file or directory")
 
-        elif command[0] == "type":
-            arg = " ".join(command[1:])
+        elif com == "type":
+            arg = command[5:]
             if arg in ["echo", "exit", "type", "pwd", "cd"]:
                 print(f"{arg} is a shell builtin")
             else:
@@ -47,11 +68,11 @@ def main():
                 else:
                     print(f"{arg}: not found")
 
-        elif is_executable_in_path(command[0]):
+        elif is_executable_in_path(com):
             subprocess.run(command)
 
         else:
-            print(f"{command[0]}: command not found")
+            print(f"{com}: command not found")
 
 
 if __name__ == "__main__":
