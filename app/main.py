@@ -57,7 +57,7 @@ def main():
         if not command:
             continue
         
-        com = command.split()[0]
+        com = parser(command)[0]
 
         if com == "exit":
             break
