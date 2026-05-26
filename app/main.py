@@ -49,6 +49,80 @@ def parser(text):
 
     return args
 
+def redirect(text,file_path=None):
+    if text and file_path :
+        with open(file_path,"w") as file :
+            file.write(text)
+    else :
+        print(text)
+
+def sanitize(command):
+    return [">" if i == "1>" else i for i in command]
+
+def check_redirect(command):
+    out = ""
+    file_path = ""
+    if ">" in command :
+        idx = command.index(">") 
+        out = command[:idx]
+        file_path = " ".join(command[idx+1:])
+    else :
+        out =command
+    
+    return out,file_path
+
+class shell_builtins:
+    MEMBERS = ["echo", "exit", "type", "pwd", "cd"]
+
+    def __init__(self, command):
+        self.exec = command[0]
+        self.args = command[1:]
+
+    def run(self):
+        match self.exec:
+            case "echo":
+                return self.echo()
+
+            case "pwd":
+                return self.pwd()
+
+            case "cd":
+                return self.cd()
+
+            case "type":
+                return self.type()
+
+    def echo(self):
+        return " ".join(self.args)
+
+    def pwd(self):
+        return os.getcwd()
+
+    def cd(self):
+        to_path = " ".join(self.args)
+
+        if to_path == "~":
+            os.chdir(os.environ["HOME"])
+
+        elif os.path.isdir(to_path):
+            os.chdir(to_path)
+
+        else:
+            return f"cd: {to_path}: No such file or directory"
+
+    def type(self):
+        arg = " ".join(self.args)
+
+        if arg in shell_builtins.MEMBERS:
+            return f"{arg} is a shell builtin"
+
+        file_path = is_executable_in_path(arg)
+
+        if file_path:
+            return f"{arg} is {file_path}"
+
+        return f"{arg}: not found"
+
 
 def main():
     while True:
@@ -57,36 +131,16 @@ def main():
         if not command:
             continue
         
-        com = parser(command)[0]
+        parsed_command = sanitize(parser(command))
+        com = parsed_command[0]
 
         if com == "exit":
             break
-
-        elif com == "echo":
-            print(" ".join(parser(command[5:])))
-
-        elif com == "pwd":
-            print(os.getcwd())
-
-        elif com == "cd":
-            to_path = command[3:]
-            if to_path == "~":
-                os.chdir(os.environ["HOME"])
-            elif os.path.isdir(to_path):
-                os.chdir(to_path)
-            else:
-                print(f"cd: {to_path}: No such file or directory")
-
-        elif com == "type":
-            arg = command[5:]
-            if arg in ["echo", "exit", "type", "pwd", "cd"]:
-                print(f"{arg} is a shell builtin")
-            else:
-                file_path = is_executable_in_path(arg)
-                if file_path:
-                    print(f"{arg} is {file_path}")
-                else:
-                    print(f"{arg}: not found")
+        
+        elif com in shell_builtins.MEMBERS:
+            cbr, file_path = check_redirect(parsed_command)
+            out = shell_builtins(cbr).run()
+            redirect(out,file_path)
 
         elif is_executable_in_path(com):
             subprocess.run(parser(command))
