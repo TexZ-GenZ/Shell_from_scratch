@@ -9,6 +9,37 @@ def is_executable_in_path(arg):
         if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
             return file_path
 
+def quote_parser(text):
+    args = []
+    current = ""
+
+    i = 0
+    while i < len(text):
+        if text[i] == "'":
+            i += 1
+            while i < len(text) and text[i] != "'":
+                current += text[i]
+                i += 1
+
+        elif text[i] == " ":
+            if current:
+                args.append(current)
+                current = ""
+
+            while i < len(text) and text[i] == " ":
+                i += 1
+            i -= 1
+
+        else:
+            current += text[i]
+
+        i += 1
+
+    if current:
+        args.append(current)
+
+    return args
+
 
 def main():
     while True:
@@ -23,27 +54,7 @@ def main():
             break
 
         elif com == "echo":
-            out = ""
-            text = command[5:] 
-
-            i = 0
-            while i < len(text):
-                if text[i] == "'":
-                    i += 1
-                    while i < len(text) and text[i] != "'":
-                        out += text[i]
-                        i += 1
-                else:
-                    if text[i] == " ":
-                        out += " "
-                        while i < len(text) and text[i] == " ":
-                            i += 1
-                        i -= 1
-                    else :
-                        out += text[i]
-                i += 1
-
-            print(out)
+            print(" ".join(quote_parser(command[5:])))
 
         elif com == "pwd":
             print(os.getcwd())
@@ -69,7 +80,7 @@ def main():
                     print(f"{arg}: not found")
 
         elif is_executable_in_path(com):
-            subprocess.run(command)
+            subprocess.run(quote_parser(command))
 
         else:
             print(f"{com}: command not found")
