@@ -25,7 +25,10 @@ def parser(text):
             while i < len(text) and text[i] != "\"":
                 current += text[i]
                 i += 1
-                
+        elif text[i] == "\\" :
+            i+=1
+            current += text[i]
+            
         elif text[i] == " ":
             if current:
                 args.append(current)
