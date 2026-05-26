@@ -49,7 +49,9 @@ def parser(text):
 
     return args
 
-def redirect(text="",file_path=None):
+def redirect(text,file_path=None):
+    if text is None :
+        return
     if file_path :
         with open(file_path,"w") as file :
             file.write(text + "\n")
