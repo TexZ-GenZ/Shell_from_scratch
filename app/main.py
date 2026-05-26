@@ -132,19 +132,23 @@ def main():
             continue
         
         parsed_command = sanitize(parser(command))
+        parsed_command , file_path = check_redirect(parsed_command)
         com = parsed_command[0]
 
         if com == "exit":
             break
         
         elif com in shell_builtins.MEMBERS:
-            cbr, file_path = check_redirect(parsed_command)
-            out = shell_builtins(cbr).run()
+            out = shell_builtins(parsed_command).run()
             redirect(out,file_path)
 
         elif is_executable_in_path(com):
-            subprocess.run(parser(command))
-
+            if file_path :
+                with open(file_path,"w") as file :
+                    subprocess.run(parsed_command, stdout=file)
+            else :
+                subprocess.run(parsed_command)
+            
         else:
             print(f"{com}: command not found")
 
