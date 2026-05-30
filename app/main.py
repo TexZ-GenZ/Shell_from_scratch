@@ -154,6 +154,7 @@ class shell_builtins:
     
     def complete(self):
         flag = self.args[0]
+
         if flag == "-p":
             command = self.args[1]
             if command in shell_builtins.COMPLETION_SPEC :
@@ -161,10 +162,15 @@ class shell_builtins:
                 return f"complete -C '{spec_path}' {command}"
             else :
                 return f"complete: {command}: no completion specification"
+            
         elif flag == "-C":
             spec_path = self.args[1]
             command = self.args[2]
             shell_builtins.COMPLETION_SPEC[command] = spec_path
+        
+        elif flag == "-r":
+            command = self.args[1]
+            shell_builtins.COMPLETION_SPEC.pop(command, None)
 
 def completer(text, state):
     line = readline.get_line_buffer()
