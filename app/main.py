@@ -175,29 +175,42 @@ def completer(text, state):
         if state < len(matches):
             return matches[state] + " "
     else:
-        idx = text.rfind("/")
-        if idx == -1:
-            dir_path = "."
-            prefix = text
-        else:
-            dir_path = text[: idx + 1]
-            if idx < len(text) - 1:
-                prefix = text[idx + 1 :]
+        if words[0] in shell_builtins.COMPLETION_SPEC :
+            spec_file = shell_builtins.COMPLETION_SPEC[words[0]]
+            if os.path.isfile(spec_file) and os.access(spec_file, os.X_OK):
+                result = subprocess.run(
+                    [spec_file],
+                    capture_output=True,
+                    text=True
+                )
+                candidates = result.stdout.splitlines()
+                if state < len(candidates):
+                    return candidates[state]
+
+        else :
+            idx = text.rfind("/")
+            if idx == -1:
+                dir_path = "."
+                prefix = text
             else:
-                prefix = ""
-
-        matches = []
-        for f in os.listdir(dir_path):
-            if f.startswith(prefix):
-                full = os.path.join(dir_path, f)
-                if os.path.isdir(full):
-                    matches.append(text[: idx + 1] + f + "/")
+                dir_path = text[: idx + 1]
+                if idx < len(text) - 1:
+                    prefix = text[idx + 1 :]
                 else:
-                    matches.append(text[: idx + 1] + f + " ")
+                    prefix = ""
 
-        if state < len(matches):
-            return matches[state]
-        return None
+            matches = []
+            for f in os.listdir(dir_path):
+                if f.startswith(prefix):
+                    full = os.path.join(dir_path, f)
+                    if os.path.isdir(full):
+                        matches.append(text[: idx + 1] + f + "/")
+                    else:
+                        matches.append(text[: idx + 1] + f + " ")
+
+            if state < len(matches):
+                return matches[state]
+            return None
 
     return None
 
