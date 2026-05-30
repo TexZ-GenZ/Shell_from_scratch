@@ -67,6 +67,10 @@ def redirect(text, redirect_type, file_path=None):
     if redirect_type == "stderr" and file_path:
         with open(file_path, "w"):
             pass
+    
+    if redirect_type == "stderr_a" and file_path:
+        with open(file_path, "a"):
+            pass
 
     if text is not None:
         print(text)
@@ -82,7 +86,11 @@ def sanitize(command):
         
 
 def check_redirect(command):
-    if ">>" in command:
+    if "2>>" in command:
+        idx = command.index("2>>")
+        return command[:idx], "stderr_a", " ".join(command[idx+1:])
+    
+    elif ">>" in command:
         idx = command.index(">>")
         return command[:idx], "stdout_a", " ".join(command[idx+1:])
 
@@ -181,6 +189,10 @@ def main():
                 with open(file_path, "a") as file :
                     subprocess.run(parsed_command, stdout=file)
 
+            elif redirect_type == "stderr_a":
+                with open(file_path, "a") as file:
+                    subprocess.run(parsed_command, stderr=file)
+                    
             else:
                 subprocess.run(parsed_command)
 
