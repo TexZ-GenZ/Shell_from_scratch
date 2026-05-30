@@ -189,6 +189,16 @@ class shell_builtins:
                 print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Done                 {val[1][:-1]}")
                 shell_builtins.JOBS.pop(key, None)
     
+    @staticmethod
+    def reap_jobs():
+        for key, val in list(shell_builtins.JOBS.items()):
+            keys = sorted(shell_builtins.JOBS.keys())
+            highest = keys[-1] if len(keys) >= 1 else None
+            second  = keys[-2] if len(keys) >= 2 else None
+            if val[0].poll() is not None:
+                print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Done                 {val[1][:-1]}")
+                shell_builtins.JOBS.pop(key, None)
+
 def completer(text, state):
     line = readline.get_line_buffer()
     words = line.split()
@@ -268,7 +278,6 @@ def setup_readline():
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
 
-
 def parse_input(command):
     parsed_command = sanitize(parser(command))
     command_type = "foregorund"
@@ -320,13 +329,7 @@ def main():
     while True:
 
         #Reaping the jobs
-        for key, val in list(shell_builtins.JOBS.items()):
-            keys = sorted(shell_builtins.JOBS.keys())
-            highest = keys[-1] if len(keys) >= 1 else None
-            second  = keys[-2] if len(keys) >= 2 else None
-            if val[0].poll() is not None:
-                print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Done                 {val[1][:-1]}")
-                shell_builtins.JOBS.pop(key, None)
+        shell_builtins.reap_jobs()
 
         command = input("$ ")
         if not command:
