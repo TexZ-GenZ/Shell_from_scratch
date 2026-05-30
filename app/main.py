@@ -287,12 +287,16 @@ def parse_input(command):
     parsed_command, redirect_type, file_path = check_redirect(parsed_command)
     return parsed_command, None, redirect_type, file_path, command_type
 
-def run_builtin(parsed_command, redirect_type, file_path):
-    out = shell_builtins(parsed_command).run()
-    redirect(out, redirect_type, file_path)
+def run_builtin(parsed_command, right_command, redirect_type, file_path, command_type):
+    if command_type == "pipe":
+        out = shell_builtins(parsed_command).run()
+        subprocess.run(right_command, input=out, text=True)
+    else :
+        out = shell_builtins(parsed_command).run()
+        redirect(out, redirect_type, file_path)
 
 def run_external(parsed_command, right_command,  redirect_type, file_path, command_type):
-    
+
     if command_type == "pipe":
         p1 = subprocess.Popen(parsed_command, stdout=subprocess.PIPE)
         p2 = subprocess.Popen(right_command, stdin=p1.stdout)
@@ -351,7 +355,7 @@ def main():
             break
         
         elif com in shell_builtins.MEMBERS:
-            run_builtin(parsed_command, redirect_type, file_path)
+            run_builtin(parsed_command, right_command, redirect_type, file_path, command_type)
 
         elif com in COMMANDS:
             run_external(parsed_command, right_command, redirect_type, file_path, command_type)
