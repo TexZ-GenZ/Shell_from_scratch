@@ -99,7 +99,7 @@ def check_redirect(command):
 
 
 class shell_builtins:
-    MEMBERS = ["echo", "exit", "type", "pwd", "cd", "complete"]
+    MEMBERS = ["echo", "exit", "type", "pwd", "cd", "complete", "jobs"]
     COMPLETION_SPEC = {}
 
     def __init__(self, command):
@@ -122,6 +122,9 @@ class shell_builtins:
             
             case "complete":
                 return self.complete()
+            
+            case "jobs":
+                return self.jobs()
 
     def echo(self):
         return " ".join(self.args)
@@ -172,6 +175,9 @@ class shell_builtins:
             command = self.args[1]
             shell_builtins.COMPLETION_SPEC.pop(command, None)
 
+    def jobs(self):
+        return 
+    
 def completer(text, state):
     line = readline.get_line_buffer()
     words = line.split()
@@ -234,7 +240,6 @@ def completer(text, state):
 
     return None
 
-
 def build_commands():
     commands = {}
     seen = set()
@@ -247,7 +252,6 @@ def build_commands():
                 commands[entry.name] = entry.path
     return commands
 
-
 def setup_readline():
     readline.set_completer_delims(" \t\n")
     readline.set_completer(completer)
@@ -257,11 +261,9 @@ def parse_input(command):
     parsed_command = sanitize(parser(command))
     return check_redirect(parsed_command)
 
-
 def run_builtin(parsed_command, redirect_type, file_path):
     out = shell_builtins(parsed_command).run()
     redirect(out, redirect_type, file_path)
-
 
 def run_external(parsed_command, redirect_type, file_path):
     if redirect_type == "stdout":
