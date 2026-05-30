@@ -169,6 +169,8 @@ class shell_builtins:
 def completer(text, state):
     line = readline.get_line_buffer()
     words = line.split()
+    cursor = readline.get_endidx()
+
     if len(words) == 0 or (len(words) == 1 and not line.endswith(" ")):
         candidates = list(COMMANDS.keys()) + shell_builtins.MEMBERS
         matches = [x for x in candidates if x.startswith(text)]
@@ -184,11 +186,17 @@ def completer(text, state):
                 argv.append("")
 
             if os.path.isfile(spec_file) and os.access(spec_file, os.X_OK):
+                env = os.environ.copy()
+                env["COMP_LINE"] = line
+                env["COMP_POINT"] = cursor
+
                 result = subprocess.run(
                     [spec_file, *argv],
                     capture_output=True,
-                    text=True
+                    text=True,
+                    env=env
                 )
+                
                 candidates = result.stdout.splitlines()
                 if state < len(candidates):
                     return candidates[state] + " "
