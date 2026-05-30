@@ -277,14 +277,29 @@ def parse_input(command):
     if parsed_command[-1] == "&" :
         command_type = "background"
         parsed_command = parsed_command[:-1]
+    
+    if "|" in parsed_command:
+        idx = parsed_command.index("|")
+        left = parsed_command[:idx]
+        right = parsed_command[idx+1:]
+        return left, right, None, None, "pipe"
+    
     parsed_command, redirect_type, file_path = check_redirect(parsed_command)
-    return parsed_command, redirect_type, file_path, command_type
+    return parsed_command, None, redirect_type, file_path, command_type
 
 def run_builtin(parsed_command, redirect_type, file_path):
     out = shell_builtins(parsed_command).run()
     redirect(out, redirect_type, file_path)
 
-def run_external(parsed_command, redirect_type, file_path, command_type):
+def run_external(parsed_command, right_command,  redirect_type, file_path, command_type):
+    
+    if command_type == "pipe":
+        p1 = subprocess.Popen(parsed_command, stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(right_command, stdin=p1.stdout)
+        p1.stdout.close()
+        p2.wait()
+        return
+    
     if command_type == "background":
         i = 1
         while i in shell_builtins.JOBS:
@@ -294,6 +309,7 @@ def run_external(parsed_command, redirect_type, file_path, command_type):
         print(f"[{i}] {proc.pid}")
         return
     
+
     if redirect_type == "stdout":
         with open(file_path, "w") as file:
             subprocess.run(parsed_command, stdout=file)
@@ -328,17 +344,17 @@ def main():
         if not command:
             continue
 
-        parsed_command, redirect_type, file_path , command_type = parse_input(command)
+        parsed_command, right_command ,  redirect_type, file_path , command_type = parse_input(command)
         com = parsed_command[0]
 
         if com == "exit":
             break
-
+        
         elif com in shell_builtins.MEMBERS:
             run_builtin(parsed_command, redirect_type, file_path)
 
         elif com in COMMANDS:
-            run_external(parsed_command, redirect_type, file_path, command_type)
+            run_external(parsed_command, right_command, redirect_type, file_path, command_type)
 
         else:
             print(f"{com}: command not found")
