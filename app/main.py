@@ -9,6 +9,7 @@ def is_executable_in_path(arg):
         if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
             return file_path
 
+
 def parser(text):
     args = []
     current = ""
@@ -20,15 +21,15 @@ def parser(text):
             while i < len(text) and text[i] != "'":
                 current += text[i]
                 i += 1
-        elif text[i] == "\"":
+        elif text[i] == '"':
             i += 1
-            while i < len(text) and text[i] != "\"":
-                if text[i] == "\\" and text[i+1] in ["\"", "\\"]:
-                    i +=1 
+            while i < len(text) and text[i] != '"':
+                if text[i] == "\\" and text[i + 1] in ['"', "\\"]:
+                    i += 1
                 current += text[i]
                 i += 1
-        elif text[i] == "\\" :
-            i+=1
+        elif text[i] == "\\":
+            i += 1
             current += text[i]
 
         elif text[i] == " ":
@@ -49,26 +50,34 @@ def parser(text):
 
     return args
 
-def redirect(text,file_path=None):
-    if text is None :
+
+def redirect(text, redirect_type, file_path=None):
+    if redirect_type == "stdout" and file_path:
+        if text is not None:
+            with open(file_path, "w") as file:
+                file.write(text + "\n")
         return
-    if file_path :
-        with open(file_path,"w") as file :
-            file.write(text + "\n")
-    else :
+
+    if redirect_type == "stderr" and file_path:
+        with open(file_path, "w"):
+            pass
+
+    if text is not None:
         print(text)
+
 
 def sanitize(command):
     return [">" if i == "1>" else i for i in command]
 
+
 def check_redirect(command):
     if ">" in command:
         idx = command.index(">")
-        return command[:idx], "stdout", " ".join(command[idx+1:])
+        return command[:idx], "stdout", " ".join(command[idx + 1 :])
 
     elif "2>" in command:
         idx = command.index("2>")
-        return command[:idx], "stderr", " ".join(command[idx+1:])
+        return command[:idx], "stderr", " ".join(command[idx + 1 :])
 
     return command, None, None
 
@@ -132,21 +141,17 @@ def main():
         command = input()
         if not command:
             continue
-        
+
         parsed_command = sanitize(parser(command))
         parsed_command, redirect_type, file_path = check_redirect(parsed_command)
         com = parsed_command[0]
 
         if com == "exit":
             break
-        
+
         elif com in shell_builtins.MEMBERS:
             out = shell_builtins(parsed_command).run()
-
-            if redirect_type == "stdout":
-                redirect(out, file_path)
-            else:
-                redirect(out)
+            redirect(out, redirect_type, file_path)
 
         elif is_executable_in_path(com):
             if redirect_type == "stdout":
@@ -158,7 +163,7 @@ def main():
                     subprocess.run(parsed_command, stderr=file)
             else:
                 subprocess.run(parsed_command)
-            
+
         else:
             print(f"{com}: command not found")
 
