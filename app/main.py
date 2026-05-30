@@ -187,19 +187,19 @@ def main():
         elif com in COMMANDS :
             if redirect_type == "stdout":
                 with open(file_path, "w") as file:
-                    subprocess.run([COMMANDS[com], *parsed_command[1:]], stdout=file)
+                    subprocess.run(parsed_command, stdout=file)
 
             elif redirect_type == "stderr":
                 with open(file_path, "w") as file:
-                    subprocess.run([COMMANDS[com], *parsed_command[1:]], stderr=file)
+                    subprocess.run(parsed_command, stderr=file)
             
             elif redirect_type == "stdout_a" :
                 with open(file_path, "a") as file :
-                    subprocess.run([COMMANDS[com], *parsed_command[1:]], stdout=file)
+                    subprocess.run(parsed_command, stdout=file)
 
             elif redirect_type == "stderr_a":
                 with open(file_path, "a") as file:
-                    subprocess.run([COMMANDS[com], *parsed_command[1:]], stderr=file)
+                    subprocess.run(parsed_command, stderr=file)
 
             else:
                 subprocess.run(parsed_command)
