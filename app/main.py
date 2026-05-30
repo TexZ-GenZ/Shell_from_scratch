@@ -4,13 +4,6 @@ import subprocess
 import readline
 
 
-def is_executable_in_path(arg):
-    for dir in os.environ["PATH"].split(os.pathsep):
-        file_path = os.path.join(dir, arg)
-        if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
-            return file_path
-
-
 def parser(text):
     args = []
     current = ""
@@ -51,7 +44,6 @@ def parser(text):
 
     return args
 
-
 def redirect(text, redirect_type, file_path=None):
     if redirect_type == "stdout" and file_path:
         if text is not None:
@@ -76,7 +68,6 @@ def redirect(text, redirect_type, file_path=None):
     if text is not None:
         print(text)
 
-
 def sanitize(command):
     return [
         ">" if token == "1>"
@@ -85,7 +76,6 @@ def sanitize(command):
         for token in command
     ]
         
-
 def check_redirect(command):
     if "2>>" in command:
         idx = command.index("2>>")
@@ -104,7 +94,6 @@ def check_redirect(command):
         return command[:idx], "stdout", " ".join(command[idx+1:])
 
     return command, None, None
-
 
 class shell_builtins:
     MEMBERS = ["echo", "exit", "type", "pwd", "cd"]
@@ -151,24 +140,28 @@ class shell_builtins:
         if arg in shell_builtins.MEMBERS:
             return f"{arg} is a shell builtin"
 
-        file_path = is_executable_in_path(arg)
-
-        if file_path:
-            return f"{arg} is {file_path}"
+        if arg in COMMANDS:
+            return f"{arg} is {COMMANDS[arg]}"
 
         return f"{arg}: not found"
 
-def completer(text ,state):
-    candidates = shell_builtins.MEMBERS
-
-    matches = [x for x in candidates if x.startswith(text)]
+def completer(text, state):
+    matches = [x for x in COMMANDS if x.startswith(text)]
 
     if state < len(matches):
         return matches[state] + " "
-    
+
     return None
 
 def main():
+    global COMMANDS
+    COMMANDS = {}
+    for dir in os.environ["PATH"].split(os.pathsep):
+        if os.path.isdir(dir):
+            for file in os.listdir(dir):
+                path = os.path.join(dir, file)
+                if os.path.isfile(path) and os.access(path, os.X_OK):
+                    COMMANDS[file] = path
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
 
@@ -188,22 +181,22 @@ def main():
             out = shell_builtins(parsed_command).run()
             redirect(out, redirect_type, file_path)
 
-        elif is_executable_in_path(com):
+        elif com in COMMANDS :
             if redirect_type == "stdout":
                 with open(file_path, "w") as file:
-                    subprocess.run(parsed_command, stdout=file)
+                    subprocess.run([COMMANDS[com], *parsed_command[1:]], stdout=file)
 
             elif redirect_type == "stderr":
                 with open(file_path, "w") as file:
-                    subprocess.run(parsed_command, stderr=file)
+                    subprocess.run([COMMANDS[com], *parsed_command[1:]], stderr=file)
             
             elif redirect_type == "stdout_a" :
                 with open(file_path, "a") as file :
-                    subprocess.run(parsed_command, stdout=file)
+                    subprocess.run([COMMANDS[com], *parsed_command[1:]], stdout=file)
 
             elif redirect_type == "stderr_a":
                 with open(file_path, "a") as file:
-                    subprocess.run(parsed_command, stderr=file)
+                    subprocess.run([COMMANDS[com], *parsed_command[1:]], stderr=file)
 
             else:
                 subprocess.run(parsed_command)
