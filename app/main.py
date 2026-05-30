@@ -142,7 +142,11 @@ def main():
         
         elif com in shell_builtins.MEMBERS:
             out = shell_builtins(parsed_command).run()
-            redirect(out,file_path)
+
+            if redirect_type == "stdout":
+                redirect(out, file_path)
+            else:
+                redirect(out)
 
         elif is_executable_in_path(com):
             if redirect_type == "stdout":
