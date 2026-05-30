@@ -73,8 +73,13 @@ def redirect(text, redirect_type, file_path=None):
 
 
 def sanitize(command):
-    return [">" if i == "1>" else i for i in command]
-
+    return [
+        ">" if token == "1>"
+        else ">>" if token == "1>>"
+        else token
+        for token in command
+    ]
+        
 
 def check_redirect(command):
     if ">>" in command:
