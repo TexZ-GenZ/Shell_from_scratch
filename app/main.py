@@ -188,7 +188,7 @@ def completer(text, state):
             if os.path.isfile(spec_file) and os.access(spec_file, os.X_OK):
                 env = os.environ.copy()
                 env["COMP_LINE"] = line
-                env["COMP_POINT"] = cursor
+                env["COMP_POINT"] = str(cursor)
 
                 result = subprocess.run(
                     [spec_file, *argv],
@@ -196,7 +196,7 @@ def completer(text, state):
                     text=True,
                     env=env
                 )
-                
+
                 candidates = result.stdout.splitlines()
                 if state < len(candidates):
                     return candidates[state] + " "
