@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import readline
 
 
 def is_executable_in_path(arg):
@@ -157,11 +158,22 @@ class shell_builtins:
 
         return f"{arg}: not found"
 
+def completer(text ,state):
+    candidates = shell_builtins.MEMBERS
+
+    matches = [x for x in candidates if x.startswith(text)]
+
+    if state < len(matches):
+        return matches[state]
+    
+    return None
 
 def main():
+    readline.set_completer(completer)
+    readline.parse_and_bind("tab: complete")
+
     while True:
-        sys.stdout.write("$ ")
-        command = input()
+        command = input("$ ")
         if not command:
             continue
 
@@ -192,7 +204,7 @@ def main():
             elif redirect_type == "stderr_a":
                 with open(file_path, "a") as file:
                     subprocess.run(parsed_command, stderr=file)
-                    
+
             else:
                 subprocess.run(parsed_command)
 
