@@ -290,7 +290,12 @@ def parse_input(command):
 def run_builtin(parsed_command, right_command, redirect_type, file_path, command_type):
     if command_type == "pipe":
         out = shell_builtins(parsed_command).run()
-        subprocess.run(right_command, input=out + "\n", text=True)
+        if right_command[0] in shell_builtins.MEMBERS:
+            result = shell_builtins(right_command).run()
+            if result:
+                print(result)
+        else:
+            subprocess.run(right_command, input=out + "\n", text=True)
     else :
         out = shell_builtins(parsed_command).run()
         redirect(out, redirect_type, file_path)
@@ -299,9 +304,15 @@ def run_external(parsed_command, right_command,  redirect_type, file_path, comma
 
     if command_type == "pipe":
         p1 = subprocess.Popen(parsed_command, stdout=subprocess.PIPE)
-        p2 = subprocess.Popen(right_command, stdin=p1.stdout)
-        p1.stdout.close()
-        p2.wait()
+        if right_command[0] in shell_builtins.MEMBERS:
+            p1.wait()
+            result = shell_builtins(right_command).run()
+            if result:
+                print(result)
+        else:
+            p2 = subprocess.Popen(right_command, stdin=p1.stdout)
+            p1.stdout.close()
+            p2.wait()
         return
     
     if command_type == "background":
