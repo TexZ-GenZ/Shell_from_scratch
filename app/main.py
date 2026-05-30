@@ -146,12 +146,15 @@ class shell_builtins:
         return f"{arg}: not found"
 
 def completer(text, state):
-    matches = [x for x in COMMANDS if x.startswith(text)]
+    candidates = list(COMMANDS.keys()) + shell_builtins.MEMBERS
+
+    matches = [x for x in candidates if x.startswith(text)]
 
     if state < len(matches):
         return matches[state] + " "
 
     return None
+
 
 def main():
     global COMMANDS
