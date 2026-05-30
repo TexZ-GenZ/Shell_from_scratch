@@ -290,7 +290,7 @@ def parse_input(command):
 def run_builtin(parsed_command, right_command, redirect_type, file_path, command_type):
     if command_type == "pipe":
         out = shell_builtins(parsed_command).run()
-        subprocess.run(right_command, input=out, text=True)
+        subprocess.run(right_command, input=out + "\n", text=True)
     else :
         out = shell_builtins(parsed_command).run()
         redirect(out, redirect_type, file_path)
