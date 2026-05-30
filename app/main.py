@@ -177,6 +177,14 @@ def completer(text, state):
     else:
         if words[0] in shell_builtins.COMPLETION_SPEC :
             spec_file = shell_builtins.COMPLETION_SPEC[words[0]]
+            argv = []
+            argv[0] = words[0]
+            argv[1] = text
+            if len(words) > 2 :
+                argv[2] = words[1]
+            else :
+                argv[2] = ""
+
             if os.path.isfile(spec_file) and os.access(spec_file, os.X_OK):
                 result = subprocess.run(
                     [spec_file],
