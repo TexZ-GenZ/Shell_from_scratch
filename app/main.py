@@ -3,6 +3,8 @@ import os
 import subprocess
 import readline
 
+COMMANDS = {}
+
 
 def parser(text):
     args = []
@@ -44,23 +46,24 @@ def parser(text):
 
     return args
 
+
 def redirect(text, redirect_type, file_path=None):
     if redirect_type == "stdout" and file_path:
         if text is not None:
             with open(file_path, "w") as file:
                 file.write(text + "\n")
         return
-    
+
     if redirect_type == "stdout_a" and file_path:
         if text is not None:
             with open(file_path, "a") as file:
                 file.write(text + "\n")
         return
-    
+
     if redirect_type == "stderr" and file_path:
         with open(file_path, "w"):
             pass
-    
+
     if redirect_type == "stderr_a" and file_path:
         with open(file_path, "a"):
             pass
@@ -68,32 +71,32 @@ def redirect(text, redirect_type, file_path=None):
     if text is not None:
         print(text)
 
+
 def sanitize(command):
     return [
-        ">" if token == "1>"
-        else ">>" if token == "1>>"
-        else token
-        for token in command
+        ">" if token == "1>" else ">>" if token == "1>>" else token for token in command
     ]
-        
+
+
 def check_redirect(command):
     if "2>>" in command:
         idx = command.index("2>>")
-        return command[:idx], "stderr_a", " ".join(command[idx+1:])
-    
+        return command[:idx], "stderr_a", " ".join(command[idx + 1 :])
+
     elif ">>" in command:
         idx = command.index(">>")
-        return command[:idx], "stdout_a", " ".join(command[idx+1:])
+        return command[:idx], "stdout_a", " ".join(command[idx + 1 :])
 
     elif "2>" in command:
         idx = command.index("2>")
-        return command[:idx], "stderr", " ".join(command[idx+1:])
+        return command[:idx], "stderr", " ".join(command[idx + 1 :])
 
     elif ">" in command:
         idx = command.index(">")
-        return command[:idx], "stdout", " ".join(command[idx+1:])
+        return command[:idx], "stdout", " ".join(command[idx + 1 :])
 
     return command, None, None
+
 
 class shell_builtins:
     MEMBERS = ["echo", "exit", "type", "pwd", "cd"]
@@ -145,26 +148,31 @@ class shell_builtins:
 
         return f"{arg}: not found"
 
-def completer(text, state):
-    candidates = list(COMMANDS.keys()) + shell_builtins.MEMBERS
-
-    matches = [x for x in candidates if x.startswith(text)]
-
-    if state < len(matches):
-        return matches[state] + " "
-
+def completer(text, state): 
+    line = readline.get_line_buffer() 
+    words = line.split() 
+    if len(words) <= 1 : 
+        candidates = list(COMMANDS.keys()) + shell_builtins.MEMBERS 
+        matches = [x for x in candidates if x.startswith(text)] 
+        if state < len(matches): 
+            return matches[state] + " " 
+    else : 
+        matches = [f for f in os.listdir(".") if f.startswith(text)] 
+        if state < len(matches): 
+            return matches[state] 
     return None
-
 
 def main():
     global COMMANDS
-    COMMANDS = {}
-    for dir in os.environ["PATH"].split(os.pathsep):
-        if os.path.isdir(dir):
-            for file in os.listdir(dir):
-                path = os.path.join(dir, file)
-                if os.path.isfile(path) and os.access(path, os.X_OK):
-                    COMMANDS[file] = path
+    seen = set()
+    for dir in os.environ.get("PATH", "").split(os.pathsep):
+        if dir in seen or not os.path.isdir(dir):
+            continue
+        seen.add(dir)
+        for entry in os.scandir(dir):
+            if entry.is_file() and os.access(entry.path, os.X_OK):
+                COMMANDS[entry.name] = entry.path
+
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
 
@@ -184,7 +192,7 @@ def main():
             out = shell_builtins(parsed_command).run()
             redirect(out, redirect_type, file_path)
 
-        elif com in COMMANDS :
+        elif com in COMMANDS:
             if redirect_type == "stdout":
                 with open(file_path, "w") as file:
                     subprocess.run(parsed_command, stdout=file)
@@ -192,9 +200,9 @@ def main():
             elif redirect_type == "stderr":
                 with open(file_path, "w") as file:
                     subprocess.run(parsed_command, stderr=file)
-            
-            elif redirect_type == "stdout_a" :
-                with open(file_path, "a") as file :
+
+            elif redirect_type == "stdout_a":
+                with open(file_path, "a") as file:
                     subprocess.run(parsed_command, stdout=file)
 
             elif redirect_type == "stderr_a":
