@@ -101,6 +101,8 @@ def check_redirect(command):
 class shell_builtins:
     MEMBERS = ["echo", "exit", "type", "pwd", "cd", "complete", "jobs"]
     COMPLETION_SPEC = {}
+    JOBS = {}
+    JOB_COUNTER = 1
 
     def __init__(self, command):
         self.exec = command[0]
@@ -176,7 +178,11 @@ class shell_builtins:
             shell_builtins.COMPLETION_SPEC.pop(command, None)
 
     def jobs(self):
-        return 
+        for key, val in list(shell_builtins.JOBS.items()):
+            if val.poll() is None:
+                print(f"[{key}] {val.pid}")
+            else:
+                shell_builtins.JOBS.pop(key, None)
     
 def completer(text, state):
     line = readline.get_line_buffer()
@@ -257,15 +263,30 @@ def setup_readline():
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
 
+
 def parse_input(command):
     parsed_command = sanitize(parser(command))
-    return check_redirect(parsed_command)
+    command_type = "foregorund"
+    if parsed_command[-1] == "&" :
+        command_type = "background"
+        parsed_command = parsed_command[:-1]
+    parsed_command, redirect_type, file_path = check_redirect(parsed_command)
+    return parsed_command, redirect_type, file_path, command_type
 
 def run_builtin(parsed_command, redirect_type, file_path):
     out = shell_builtins(parsed_command).run()
     redirect(out, redirect_type, file_path)
 
-def run_external(parsed_command, redirect_type, file_path):
+def run_external(parsed_command, redirect_type, file_path, command_type):
+    if command_type == "background":
+        proc = subprocess.Popen(parsed_command)
+        counter = shell_builtins.JOB_COUNTER
+        val = proc
+        shell_builtins.JOBS[counter] = val
+        shell_builtins.JOB_COUNTER += 1
+        print(f"[{counter}] {val.pid}")
+        return
+    
     if redirect_type == "stdout":
         with open(file_path, "w") as file:
             subprocess.run(parsed_command, stdout=file)
@@ -296,7 +317,7 @@ def main():
         if not command:
             continue
 
-        parsed_command, redirect_type, file_path = parse_input(command)
+        parsed_command, redirect_type, file_path , command_type = parse_input(command)
         com = parsed_command[0]
 
         if com == "exit":
@@ -306,7 +327,7 @@ def main():
             run_builtin(parsed_command, redirect_type, file_path)
 
         elif com in COMMANDS:
-            run_external(parsed_command, redirect_type, file_path)
+            run_external(parsed_command, redirect_type, file_path, command_type)
 
         else:
             print(f"{com}: command not found")
