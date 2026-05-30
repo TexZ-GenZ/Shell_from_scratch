@@ -180,7 +180,7 @@ def completer(text, state):
         if words[0] in shell_builtins.COMPLETION_SPEC :
             spec_file = shell_builtins.COMPLETION_SPEC[words[0]]
             argv = [words[0], text]
-            if len(words) > 2 :
+            if len(words) >= 2 :
                 argv.append(words[-2])
             else :
                 argv.append("")
