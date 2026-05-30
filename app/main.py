@@ -156,11 +156,33 @@ def completer(text, state):
         matches = [x for x in candidates if x.startswith(text)] 
         if state < len(matches): 
             return matches[state] + " " 
-    else : 
-        matches = [f for f in os.listdir(".") if f.startswith(text)] 
-        if state < len(matches): 
-            return matches[state]  + " "
+    else:
+        idx = text.rfind("/")
+        if idx == -1:
+            dir_path = "."
+            prefix = text
+        else:
+            dir_path = text[:idx+1]
+            if idx < len(text) - 1 :
+                prefix = text[idx+1:]
+            else :
+                prefix = ""
+
+        matches = []
+        for f in os.listdir(dir_path):
+            if f.startswith(prefix):
+                full = os.path.join(dir_path, f)
+                if os.path.isdir(full):
+                    matches.append(text[:idx+1] + f + "/")
+                else:
+                    matches.append(text[:idx+1] + f + " ")
+
+        if state < len(matches):
+            return matches[state]
+        return None
+        
     return None
+
 
 def main():
     global COMMANDS
@@ -173,6 +195,7 @@ def main():
             if entry.is_file() and os.access(entry.path, os.X_OK):
                 COMMANDS[entry.name] = entry.path
 
+    readline.set_completer_delims(" \t\n")
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
 
