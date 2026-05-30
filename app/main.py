@@ -100,6 +100,7 @@ def check_redirect(command):
 
 class shell_builtins:
     MEMBERS = ["echo", "exit", "type", "pwd", "cd", "complete"]
+    COMPLETION_SPEC = {}
 
     def __init__(self, command):
         self.exec = command[0]
@@ -118,6 +119,9 @@ class shell_builtins:
 
             case "type":
                 return self.type()
+            
+            case "complete":
+                return self.complete()
 
     def echo(self):
         return " ".join(self.args)
@@ -147,7 +151,15 @@ class shell_builtins:
             return f"{arg} is {COMMANDS[arg]}"
 
         return f"{arg}: not found"
-
+    
+    def complete(self):
+        flag = self.args[0]
+        if flag == "-p":
+            command = self.args[1]
+            if command in shell_builtins.COMPLETION_SPEC :
+                pass
+            else :
+                return f"complete: {command}: no completion specification"
 
 def completer(text, state):
     line = readline.get_line_buffer()
