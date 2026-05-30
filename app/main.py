@@ -246,7 +246,6 @@ def setup_readline():
     readline.set_completer_delims(" \t\n")
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
-    readline.parse_and_bind("set show-all-if-ambiguous on")
 
 def parse_input(command):
     parsed_command = sanitize(parser(command))
