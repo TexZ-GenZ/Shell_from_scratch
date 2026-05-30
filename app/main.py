@@ -159,7 +159,7 @@ def completer(text, state):
     else : 
         matches = [f for f in os.listdir(".") if f.startswith(text)] 
         if state < len(matches): 
-            return matches[state] 
+            return matches[state]  + " "
     return None
 
 def main():
