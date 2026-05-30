@@ -179,10 +179,14 @@ class shell_builtins:
 
     def jobs(self):
         for key, val in list(shell_builtins.JOBS.items()):
+            keys = sorted(shell_builtins.JOBS.keys())
+            highest = keys[-1] if len(keys) >= 1 else None
+            second  = keys[-2] if len(keys) >= 2 else None
+
             if val[0].poll() is None:
-                print(f"[{key}]{'+' if key == shell_builtins.JOB_COUNTER - 1 else '-' if key == shell_builtins.JOB_COUNTER - 2 else ' '}  Running                 {val[1]}")
+                print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Running                 {val[1]}")
             else:
-                print(f"[{key}]{'+' if key == shell_builtins.JOB_COUNTER - 1 else '-' if key == shell_builtins.JOB_COUNTER - 2 else ' '}  Done                 {val[1][:-1]}")
+                print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Done                 {val[1][:-1]}")
                 shell_builtins.JOBS.pop(key, None)
     
 def completer(text, state):
