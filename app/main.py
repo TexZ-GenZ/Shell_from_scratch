@@ -185,7 +185,7 @@ def completer(text, state):
                 )
                 candidates = result.stdout.splitlines()
                 if state < len(candidates):
-                    return candidates[state]
+                    return candidates[state] + " "
 
         else :
             idx = text.rfind("/")
