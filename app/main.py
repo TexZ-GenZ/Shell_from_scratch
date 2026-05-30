@@ -62,16 +62,16 @@ def sanitize(command):
     return [">" if i == "1>" else i for i in command]
 
 def check_redirect(command):
-    out = ""
-    file_path = ""
-    if ">" in command :
-        idx = command.index(">") 
-        out = command[:idx]
-        file_path = " ".join(command[idx+1:])
-    else :
-        out =command
-    
-    return out,file_path
+    if ">" in command:
+        idx = command.index(">")
+        return command[:idx], "stdout", " ".join(command[idx+1:])
+
+    elif "2>" in command:
+        idx = command.index("2>")
+        return command[:idx], "stderr", " ".join(command[idx+1:])
+
+    return command, None, None
+
 
 class shell_builtins:
     MEMBERS = ["echo", "exit", "type", "pwd", "cd"]
@@ -134,7 +134,7 @@ def main():
             continue
         
         parsed_command = sanitize(parser(command))
-        parsed_command , file_path = check_redirect(parsed_command)
+        parsed_command, redirect_type, file_path = check_redirect(parsed_command)
         com = parsed_command[0]
 
         if com == "exit":
@@ -145,10 +145,14 @@ def main():
             redirect(out,file_path)
 
         elif is_executable_in_path(com):
-            if file_path :
-                with open(file_path,"w") as file :
+            if redirect_type == "stdout":
+                with open(file_path, "w") as file:
                     subprocess.run(parsed_command, stdout=file)
-            else :
+
+            elif redirect_type == "stderr":
+                with open(file_path, "w") as file:
+                    subprocess.run(parsed_command, stderr=file)
+            else:
                 subprocess.run(parsed_command)
             
         else:
