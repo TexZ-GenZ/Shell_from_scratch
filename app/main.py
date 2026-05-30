@@ -180,7 +180,7 @@ class shell_builtins:
     def jobs(self):
         for key, val in list(shell_builtins.JOBS.items()):
             if val[0].poll() is None:
-                print(f"[{key}]{"+" if key == shell_builtins.JOB_COUNTER - 1 else ""}  Running                 {val[1]}")
+                print(f"[{key}]{'+' if key == shell_builtins.JOB_COUNTER - 1 else '-' if key == shell_builtins.JOB_COUNTER - 2 else ' '}")
             else:
                 shell_builtins.JOBS.pop(key, None)
     
