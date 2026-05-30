@@ -179,9 +179,9 @@ def completer(text, state):
             spec_file = shell_builtins.COMPLETION_SPEC[words[0]]
             argv = [words[0], text]
             if len(words) > 2 :
-                argv[2] = words[1]
+                argv.append(words[-2])
             else :
-                argv[2] = ""
+                argv.append("")
 
             if os.path.isfile(spec_file) and os.access(spec_file, os.X_OK):
                 result = subprocess.run(
