@@ -57,7 +57,13 @@ def redirect(text, redirect_type, file_path=None):
             with open(file_path, "w") as file:
                 file.write(text + "\n")
         return
-
+    
+    if redirect_type == "stdout_a" and file_path:
+        if text is not None:
+            with open(file_path, "a") as file:
+                file.write(text + "\n")
+        return
+    
     if redirect_type == "stderr" and file_path:
         with open(file_path, "w"):
             pass
@@ -71,13 +77,17 @@ def sanitize(command):
 
 
 def check_redirect(command):
-    if ">" in command:
-        idx = command.index(">")
-        return command[:idx], "stdout", " ".join(command[idx + 1 :])
+    if ">>" in command:
+        idx = command.index(">>")
+        return command[:idx], "stdout_a", " ".join(command[idx+1:])
 
     elif "2>" in command:
         idx = command.index("2>")
-        return command[:idx], "stderr", " ".join(command[idx + 1 :])
+        return command[:idx], "stderr", " ".join(command[idx+1:])
+
+    elif ">" in command:
+        idx = command.index(">")
+        return command[:idx], "stdout", " ".join(command[idx+1:])
 
     return command, None, None
 
@@ -161,6 +171,11 @@ def main():
             elif redirect_type == "stderr":
                 with open(file_path, "w") as file:
                     subprocess.run(parsed_command, stderr=file)
+            
+            elif redirect_type == "stdout_a" :
+                with open(file_path, "a") as file :
+                    subprocess.run(parsed_command, stdout=file)
+
             else:
                 subprocess.run(parsed_command)
 
