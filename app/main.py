@@ -151,7 +151,7 @@ class shell_builtins:
 def completer(text, state): 
     line = readline.get_line_buffer() 
     words = line.split() 
-    if len(words) <= 1 : 
+    if len(words) == 0 or (len(words) == 1 and not line.endswith(" ")):
         candidates = list(COMMANDS.keys()) + shell_builtins.MEMBERS 
         matches = [x for x in candidates if x.startswith(text)] 
         if state < len(matches): 
