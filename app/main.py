@@ -318,6 +318,16 @@ def main():
     setup_readline()
 
     while True:
+
+        #Reaping the jobs
+        for key, val in list(shell_builtins.JOBS.items()):
+            keys = sorted(shell_builtins.JOBS.keys())
+            highest = keys[-1] if len(keys) >= 1 else None
+            second  = keys[-2] if len(keys) >= 2 else None
+            if val[0].poll() is not None:
+                print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Done                 {val[1][:-1]}")
+                shell_builtins.JOBS.pop(key, None)
+
         command = input("$ ")
         if not command:
             continue
