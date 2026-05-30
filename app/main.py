@@ -182,6 +182,7 @@ class shell_builtins:
             if val[0].poll() is None:
                 print(f"[{key}]{'+' if key == shell_builtins.JOB_COUNTER - 1 else '-' if key == shell_builtins.JOB_COUNTER - 2 else ' '}  Running                 {val[1]}")
             else:
+                print(f"[{key}]{'+' if key == shell_builtins.JOB_COUNTER - 1 else '-' if key == shell_builtins.JOB_COUNTER - 2 else ' '}  Done                 {val[1][:-1]}")
                 shell_builtins.JOBS.pop(key, None)
     
 def completer(text, state):
