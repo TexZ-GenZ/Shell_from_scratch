@@ -361,8 +361,20 @@ def setup_readline():
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
 
+def expand_variables(tokens):
+    expanded = []
+    for token in tokens:
+        if token.startswith("$"):
+            name = token[1:]
+            expanded.append(shell_builtins.DECLARE.get(name, ""))
+        else:
+            expanded.append(token)
+    return expanded
+
 def parse_input(command):
     parsed_command = sanitize(parser(command))
+    parsed_command = expand_variables(parsed_command)
+    
     command_type = "foregorund"
     if parsed_command[-1] == "&" :
         command_type = "background"
