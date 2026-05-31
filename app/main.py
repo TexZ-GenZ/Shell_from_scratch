@@ -168,6 +168,14 @@ class shell_builtins:
                 history_string += "\n"
         return history_string
     
+    def check_identifier(self,name):
+        if not name[0].isalpha() or name[0] != "_":
+            return False
+        for c in name :
+            if not name[0].isalnum() or name[0] != "_":
+                return False
+        return True
+    
     def declare(self):
         if self.args and self.args[0] == "-p":
             variable = self.args[1]
@@ -179,8 +187,8 @@ class shell_builtins:
         elif self.args :
             name = self.args[0].split("=")[0]
             value = self.args[0].split("=")[1]
-
-            if name[0].isalpha() or name[0] == "_":
+            
+            if self.check_identifier(name):
                 self.DECLARE[name] = value
             else :
                 return f"declare: `{self.args[0]}': not a valid identifier"
