@@ -172,7 +172,7 @@ class shell_builtins:
         if not name[0].isalpha() or name[0] != "_":
             return False
         for c in name :
-            if not name[0].isalnum() or name[0] != "_":
+            if not c.isalnum() or c != "_":
                 return False
         return True
     
@@ -187,7 +187,7 @@ class shell_builtins:
         elif self.args :
             name = self.args[0].split("=")[0]
             value = self.args[0].split("=")[1]
-            
+
             if self.check_identifier(name):
                 self.DECLARE[name] = value
             else :
