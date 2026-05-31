@@ -5,9 +5,10 @@ import readline
 COMMANDS = {}
 
 class shell_builtins:
-    MEMBERS = ["echo", "exit", "type", "pwd", "cd", "complete", "jobs"]
+    MEMBERS = ["echo", "exit", "type", "pwd", "cd", "complete", "jobs", "history"]
     COMPLETION_SPEC = {}
     JOBS = {}
+    HISTORY = []
 
     def __init__(self, command):
         self.exec = command[0]
@@ -32,6 +33,9 @@ class shell_builtins:
             
             case "jobs":
                 return self.jobs()
+            
+            case "history":
+                return self.history()
 
     def echo(self):
         return " ".join(self.args)
@@ -103,6 +107,9 @@ class shell_builtins:
             if val[0].poll() is not None:
                 print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Done                 {val[1][:-1]}")
                 shell_builtins.JOBS.pop(key, None)
+    
+    def history():
+        pass
 
 def parser(text):
     args = []
