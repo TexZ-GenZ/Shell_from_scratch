@@ -375,7 +375,7 @@ def expand_variables(tokens):
                     while i < len(token) and token[i] != "}":
                         name += token[i]
                         i += 1
-                    i += 1  
+                    i += 1  # skip }
                 else:
                     name = ""
                     while i < len(token) and (token[i].isalnum() or token[i] == "_"):
@@ -385,7 +385,8 @@ def expand_variables(tokens):
             else:
                 result += token[i]
                 i += 1
-        expanded.append(result)
+        if result:
+            expanded.append(result)
     return expanded
 
 def parse_input(command):
