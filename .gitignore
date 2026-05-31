@@ -172,3 +172,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+.codecrafters
+codecrafters.yml
+.python-version

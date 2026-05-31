@@ -1,34 +1,48 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/4d6a0a85-f921-4c01-b9c1-09d7bc6efb6d)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# Egg Shell (Python)
 
-This is a starting point for Python solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+A small, POSIX-inspired shell built for the CodeCrafters "Build Your Own Shell"
+challenge. It supports a set of core shell behaviors, builtins, and utilities
+implemented in Python.
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+## What this shell can do
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+- Builtins: `echo`, `pwd`, `cd`, `type`, `complete`, `jobs`, `history`, `declare`, `exit`
+- External commands by searching `PATH`
+- Quoting and escapes for single quotes, double quotes, and backslashes
+- Pipes with `|` between commands
+- Redirections: `>`, `>>`, `1>`, `1>>`, `2>`, `2>>`
+- Background jobs via `&` with `jobs` listing
+- Tab completion for commands and file paths
+- Basic variable expansion via `declare` and `$VAR` or `${VAR}`
+- History support (including `-r`, `-w`, `-a`) and optional `HISTFILE`
 
-# Passing the first stage
+## Project layout
 
-The entry point for your `shell` implementation is in `app/main.py`. Study and
-uncomment the relevant code, then run the command below to execute the tests on
-our servers:
+- [app/main.py](app/main.py): core shell implementation
+- [egg-shell.sh](egg-shell.sh): local runner script (uses `uv`)
+
+## Run locally
+
+This project uses `uv` to run the shell. If you do not have it installed, see
+https://docs.astral.sh/uv/ for installation instructions.
 
 ```sh
-codecrafters submit
+./egg-shell.sh
 ```
 
-Time to move on to the next stage!
+### Optional: run directly with Python
 
-# Stage 2 & beyond
+If you prefer to run without `uv`, make sure you have Python 3.14+ available
+and run:
 
-Note: This section is for stages 2 and beyond.
+```sh
+python -m app.main
+```
 
-1. Ensure you have `uv` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `app/main.py`.
-1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
-   output will be streamed to your terminal.
+## Development notes
+
+- The shell loads commands from `PATH` on startup.
+- If `HISTFILE` is set, history is read and appended on exit.
+- Completion specs can be registered using `complete -C <path> <command>`.
+
+
