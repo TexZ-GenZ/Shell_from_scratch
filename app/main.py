@@ -112,9 +112,17 @@ class shell_builtins:
         shell_builtins.HISTORY.append(command)
     
     def get_history(self):
+        n = len(self.HISTORY)
+        if self.args and self.args[0].isnumeric():
+            n = min(int(self.args[0]), len(self.HISTORY))
+
+        entries = self.HISTORY[-n:]
+        start = len(self.HISTORY) - n + 1
         history_string = ""
-        for i, entry in enumerate(self.HISTORY) :
-            history_string += f"    {i+1}  {entry}{'\n' if i != len(self.HISTORY) - 1 else ''}"
+        for i, entry in enumerate(entries):
+            history_string += f"    {start + i}  {entry}"
+            if i != len(entries) - 1:
+                history_string += "\n"
         return history_string
 
 
