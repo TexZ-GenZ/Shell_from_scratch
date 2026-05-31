@@ -122,6 +122,12 @@ class shell_builtins:
                         if line:
                             shell_builtins.HISTORY.append(line)
 
+    @staticmethod
+    def write_history(file_path):
+        with open(file_path, "w") as f:
+                for entry in shell_builtins.HISTORY:
+                    f.write(entry + "\n")
+
     def get_history(self):
         if self.args and self.args[0] == "-r":
             file_path = self.args[1]
@@ -130,9 +136,7 @@ class shell_builtins:
 
         if self.args and self.args[0] == "-w":
             file_path = self.args[1]
-            with open(file_path, "w") as f:
-                for entry in self.HISTORY:
-                    f.write(entry + "\n")
+            self.write_history(file_path)
             return 
         
         if self.args and self.args[0] == "-a":
@@ -430,6 +434,8 @@ def main():
         com = parsed_command[0][0] if command_type == "pipe" else parsed_command[0]
 
         if com == "exit":
+            if hist_file:
+                shell_builtins.write_history(hist_file)
             break
 
         elif command_type == "pipe":
