@@ -364,17 +364,26 @@ def setup_readline():
 def expand_variables(tokens):
     expanded = []
     for token in tokens:
-        if token.startswith("$"):
-            name = token[1:]
-            expanded.append(shell_builtins.DECLARE.get(name, ""))
-        else:
-            expanded.append(token)
+        result = ""
+        i = 0
+        while i < len(token):
+            if token[i] == "$":
+                i += 1
+                name = ""
+                while i < len(token) and (token[i].isalnum() or token[i] == "_"):
+                    name += token[i]
+                    i += 1
+                result += shell_builtins.DECLARE.get(name, "$" + name)
+            else:
+                result += token[i]
+                i += 1
+        expanded.append(result)
     return expanded
 
 def parse_input(command):
     parsed_command = sanitize(parser(command))
     parsed_command = expand_variables(parsed_command)
-    
+
     command_type = "foregorund"
     if parsed_command[-1] == "&" :
         command_type = "background"
