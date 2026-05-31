@@ -172,9 +172,14 @@ class shell_builtins:
         if self.args and self.args[0] == "-p":
             variable = self.args[1]
             if variable in self.DECLARE :
-                pass
+                return f"declare -- {variable}=\"{self.DECLARE[variable]}\""
             else :
                 return f"declare: {variable}: not found"
+        elif self.args :
+            name = self.args[0].split("=")[0]
+            value = self.args[0].split("=")[1]
+
+            self.DECLARE[name] = value
         return
     
 def parser(text):
