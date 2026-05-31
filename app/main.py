@@ -35,7 +35,7 @@ class shell_builtins:
                 return self.jobs()
             
             case "history":
-                return self.history()
+                return self.get_history()
 
     def echo(self):
         return " ".join(self.args)
@@ -107,9 +107,16 @@ class shell_builtins:
             if val[0].poll() is not None:
                 print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Done                 {val[1][:-1]}")
                 shell_builtins.JOBS.pop(key, None)
+    @staticmethod
+    def set_history(command):
+        shell_builtins.HISTORY.append(command)
     
-    def history():
-        pass
+    def get_history(self):
+        history_string = ""
+        for i, entry in enumerate(self.HISTORY) :
+            history_string += f"    {i+1}  {entry}{'\n' if i != len(self.HISTORY) - 1 else ''}"
+        return history_string
+
 
 def parser(text):
     args = []
@@ -372,6 +379,8 @@ def main():
         shell_builtins.reap_jobs()
 
         command = input("$ ")
+        shell_builtins.set_history(command)
+
         if not command:
             continue
 
