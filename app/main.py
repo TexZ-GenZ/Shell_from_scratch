@@ -10,6 +10,7 @@ class shell_builtins:
     JOBS = {}
     HISTORY = []
     APPEND_INDEX = 0 
+    DECLARE = {}
 
     def __init__(self, command):
         self.exec = command[0]
@@ -167,9 +168,15 @@ class shell_builtins:
                 history_string += "\n"
         return history_string
     
-    def declare():
-        pass
-
+    def declare(self):
+        if self.args and self.args[0] == "-p":
+            variable = self.args[1]
+            if variable in self.DECLARE :
+                pass
+            else :
+                return f"declare: {variable}: not found"
+        return
+    
 def parser(text):
     args = []
     current = ""
