@@ -5,7 +5,7 @@ import readline
 COMMANDS = {}
 
 class shell_builtins:
-    MEMBERS = ["echo", "exit", "type", "pwd", "cd", "complete", "jobs", "history"]
+    MEMBERS = ["echo", "exit", "type", "pwd", "cd", "complete", "jobs", "history", "declare"]
     COMPLETION_SPEC = {}
     JOBS = {}
     HISTORY = []
@@ -37,6 +37,9 @@ class shell_builtins:
             
             case "history":
                 return self.get_history()
+            
+            case "declare":
+                return self.declare()
 
     def echo(self):
         return " ".join(self.args)
@@ -163,7 +166,9 @@ class shell_builtins:
             if i != len(entries) - 1:
                 history_string += "\n"
         return history_string
-
+    
+    def declare():
+        pass
 
 def parser(text):
     args = []
