@@ -175,11 +175,15 @@ class shell_builtins:
                 return f"declare -- {variable}=\"{self.DECLARE[variable]}\""
             else :
                 return f"declare: {variable}: not found"
+            
         elif self.args :
             name = self.args[0].split("=")[0]
             value = self.args[0].split("=")[1]
 
-            self.DECLARE[name] = value
+            if name[0].isalpha() or name[0] == "_":
+                self.DECLARE[name] = value
+            else :
+                return f"declare: `{self.args[0]}': not a valid identifier"
         return
     
 def parser(text):
