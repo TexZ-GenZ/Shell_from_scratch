@@ -122,6 +122,13 @@ class shell_builtins:
                             self.HISTORY.append(line)
             return  
 
+        if self.args and self.args[0] == "-w":
+            file_path = self.args[1]
+            with open(file_path, "w") as f:
+                for entry in self.HISTORY:
+                    f.write(entry + "\n")
+            return 
+        
         n = len(self.HISTORY)
         if self.args and self.args[0].isnumeric():
             n = min(int(self.args[0]), len(self.HISTORY))
