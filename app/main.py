@@ -375,13 +375,13 @@ def expand_variables(tokens):
                     while i < len(token) and token[i] != "}":
                         name += token[i]
                         i += 1
-                    i += 1  # skip }
+                    i += 1  
                 else:
                     name = ""
                     while i < len(token) and (token[i].isalnum() or token[i] == "_"):
                         name += token[i]
                         i += 1
-                result += shell_builtins.DECLARE.get(name, "${" + name + "}" if "{" in token else "$" + name)
+                result += shell_builtins.DECLARE.get(name, "")
             else:
                 result += token[i]
                 i += 1
