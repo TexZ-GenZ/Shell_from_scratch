@@ -112,16 +112,16 @@ class shell_builtins:
         shell_builtins.HISTORY.append(command)
     
     def get_history(self):
-        arg = self.args[0]
-        if arg == "-r" :
+        if self.args and self.args[0] == "-r":
             file_path = self.args[1]
             if os.path.isfile(file_path):
-                with open(file_path, "r") as f :
-                     for line in f:
+                with open(file_path, "r") as f:
+                    for line in f:
                         line = line.rstrip("\n")
                         if line:
                             self.HISTORY.append(line)
-                            
+            return  
+
         n = len(self.HISTORY)
         if self.args and self.args[0].isnumeric():
             n = min(int(self.args[0]), len(self.HISTORY))
