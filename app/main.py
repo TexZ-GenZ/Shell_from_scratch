@@ -108,19 +108,24 @@ class shell_builtins:
             if val[0].poll() is not None:
                 print(f"[{key}]{'+' if key == highest else '-' if key == second else ' '}  Done                 {val[1][:-1]}")
                 shell_builtins.JOBS.pop(key, None)
+    
     @staticmethod
     def set_history(command):
         shell_builtins.HISTORY.append(command)
     
-    def get_history(self):
-        if self.args and self.args[0] == "-r":
-            file_path = self.args[1]
-            if os.path.isfile(file_path):
+    @staticmethod
+    def read_history(file_path):
+        if os.path.isfile(file_path):
                 with open(file_path, "r") as f:
                     for line in f:
                         line = line.rstrip("\n")
                         if line:
-                            self.HISTORY.append(line)
+                            shell_builtins.HISTORY.append(line)
+
+    def get_history(self):
+        if self.args and self.args[0] == "-r":
+            file_path = self.args[1]
+            self.read_history(file_path)
             return  
 
         if self.args and self.args[0] == "-w":
@@ -406,6 +411,9 @@ def main():
     global COMMANDS
     COMMANDS = build_commands()
     setup_readline()
+    hist_file = os.environ.get("HISTFILE")
+    if hist_file:
+        shell_builtins.read_history(hist_file)
 
     while True:
 
