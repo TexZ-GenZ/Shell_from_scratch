@@ -168,11 +168,11 @@ class shell_builtins:
                 history_string += "\n"
         return history_string
     
-    def check_identifier(self,name):
-        if not name[0].isalpha() or name[0] != "_":
+    def check_identifier(self, name):
+        if not (name[0].isalpha() or name[0] == "_"):
             return False
-        for c in name :
-            if not c.isalnum() or c != "_":
+        for c in name:
+            if not (c.isalnum() or c == "_"):
                 return False
         return True
     
