@@ -422,6 +422,7 @@ def main():
     hist_file = os.environ.get("HISTFILE")
     if hist_file:
         shell_builtins.read_history(hist_file)
+        shell_builtins.APPEND_INDEX = len(shell_builtins.HISTORY)
 
     while True:
 
