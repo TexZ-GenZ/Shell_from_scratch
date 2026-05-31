@@ -9,6 +9,7 @@ class shell_builtins:
     COMPLETION_SPEC = {}
     JOBS = {}
     HISTORY = []
+    APPEND_INDEX = 0 
 
     def __init__(self, command):
         self.exec = command[0]
@@ -127,6 +128,14 @@ class shell_builtins:
             with open(file_path, "w") as f:
                 for entry in self.HISTORY:
                     f.write(entry + "\n")
+            return 
+        
+        if self.args and self.args[0] == "-a":
+            file_path = self.args[1]
+            with open(file_path, "a") as f:
+                for entry in self.HISTORY[shell_builtins.APPEND_INDEX:] :
+                    f.write(entry + "\n")
+            shell_builtins.APPEND_INDEX = len(shell_builtins.HISTORY)
             return 
         
         n = len(self.HISTORY)
